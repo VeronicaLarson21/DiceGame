@@ -109,10 +109,8 @@ fun Dice(dieIndex1:Int,
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-
+        //die1
         Spacer(modifier = Modifier.height(24.dp))
-
-
 
         Image(
 
@@ -122,17 +120,11 @@ fun Dice(dieIndex1:Int,
 
             modifier = Modifier
 
-                .size(150.dp)
-
-
-
-
+                .size(75.dp)
 
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-
-
 
         Button(onClick=onRollClick)
 
@@ -145,9 +137,8 @@ fun Dice(dieIndex1:Int,
         Text("$dieValue1",
             fontSize = 32.sp)
 
+        //die2
         Spacer(modifier = Modifier.height(24.dp))
-
-
 
         Image(
 
@@ -157,17 +148,10 @@ fun Dice(dieIndex1:Int,
 
             modifier = Modifier
 
-                .size(150.dp)
-
-
-
-
-
+                .size(75.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-
-
 
         Button(onClick=onRollClick)
 
@@ -180,6 +164,86 @@ fun Dice(dieIndex1:Int,
         Text("$dieValue2",
             fontSize = 32.sp)
 
+        // die3
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Image(
+
+            painter= painterResource(id=dieArray[dieIndex3]),
+
+            contentDescription = "Dice image",
+
+            modifier = Modifier
+
+                .size(75.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(onClick=onRollClick)
+
+        { Text("Roll Die")}
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        val dieValue3=dieIndex3+1
+
+        Text("$dieValue3",
+            fontSize = 32.sp)
+
+        // die4
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Image(
+
+            painter= painterResource(id=dieArray[dieIndex4]),
+
+            contentDescription = "Dice image",
+
+            modifier = Modifier
+
+                .size(75.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(onClick=onRollClick)
+
+        { Text("Roll Die")}
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        val dieValue4=dieIndex4+1
+
+        Text("$dieValue4",
+            fontSize = 32.sp)
+
+        // die5
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Image(
+
+            painter= painterResource(id=dieArray[dieIndex5]),
+
+            contentDescription = "Dice image",
+
+            modifier = Modifier
+
+                .size(75.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(onClick=onRollClick)
+
+        { Text("Roll Die")}
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        val dieValue5=dieIndex5+1
+
+        Text("$dieValue5",
+            fontSize = 32.sp)
     }
 
 }
