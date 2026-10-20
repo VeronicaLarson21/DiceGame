@@ -110,7 +110,7 @@ fun Dice(dieIndex1:Int,
 
     ) {
         //die1
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Image(
 
@@ -124,13 +124,13 @@ fun Dice(dieIndex1:Int,
 
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Button(onClick=onRollClick)
 
         { Text("Roll Die")}
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         val dieValue1=dieIndex1+1
 
@@ -138,7 +138,7 @@ fun Dice(dieIndex1:Int,
             fontSize = 32.sp)
 
         //die2
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Image(
 
@@ -151,13 +151,13 @@ fun Dice(dieIndex1:Int,
                 .size(75.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Button(onClick=onRollClick)
 
         { Text("Roll Die")}
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         val dieValue2=dieIndex2+1
 
@@ -165,7 +165,7 @@ fun Dice(dieIndex1:Int,
             fontSize = 32.sp)
 
         // die3
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Image(
 
@@ -178,13 +178,13 @@ fun Dice(dieIndex1:Int,
                 .size(75.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Button(onClick=onRollClick)
 
         { Text("Roll Die")}
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         val dieValue3=dieIndex3+1
 
@@ -192,7 +192,7 @@ fun Dice(dieIndex1:Int,
             fontSize = 32.sp)
 
         // die4
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Image(
 
@@ -205,13 +205,13 @@ fun Dice(dieIndex1:Int,
                 .size(75.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Button(onClick=onRollClick)
 
         { Text("Roll Die")}
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         val dieValue4=dieIndex4+1
 
@@ -219,7 +219,7 @@ fun Dice(dieIndex1:Int,
             fontSize = 32.sp)
 
         // die5
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Image(
 
@@ -232,13 +232,13 @@ fun Dice(dieIndex1:Int,
                 .size(75.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Button(onClick=onRollClick)
 
         { Text("Roll Die")}
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         val dieValue5=dieIndex5+1
 
