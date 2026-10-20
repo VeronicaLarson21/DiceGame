@@ -49,6 +49,15 @@ fun DiceScreen(modifier: Modifier=Modifier){
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun DicePreview() {
+    DiceGameTheme {
+        DiceScreen()
+    }
+}
+
+
 
 @Composable
 fun Dice(dieIndex:Int,
