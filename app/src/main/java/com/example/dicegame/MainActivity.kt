@@ -40,10 +40,18 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DiceScreen(modifier: Modifier=Modifier){
-    var dieIndex by remember { mutableIntStateOf(5) }
-    Dice(dieIndex,
+    var dieIndex1 by remember { mutableIntStateOf(5) }
+    var dieIndex2 by remember { mutableIntStateOf(5) }
+    var dieIndex3 by remember { mutableIntStateOf(5) }
+    var dieIndex4 by remember { mutableIntStateOf(5) }
+    var dieIndex5 by remember { mutableIntStateOf(5) }
+    Dice(dieIndex1, dieIndex2, dieIndex3, dieIndex4, dieIndex5,
         onRollClick={
-            dieIndex=rollDie()
+            dieIndex1=rollDie()
+            dieIndex2=rollDie()
+            dieIndex3=rollDie()
+            dieIndex4=rollDie()
+            dieIndex5=rollDie()
         },
         modifier=modifier
     )
@@ -60,7 +68,11 @@ fun DicePreview() {
 
 
 @Composable
-fun Dice(dieIndex:Int,
+fun Dice(dieIndex1:Int,
+         dieIndex2:Int,
+         dieIndex3:Int,
+         dieIndex4:Int,
+         dieIndex5:Int,
          onRollClick: ()->Unit,
          modifier: Modifier= Modifier
 ){
@@ -104,7 +116,7 @@ fun Dice(dieIndex:Int,
 
         Image(
 
-            painter= painterResource(id=dieArray[dieIndex]),
+            painter= painterResource(id=dieArray[dieIndex1]),
 
             contentDescription = "Dice image",
 
@@ -128,9 +140,44 @@ fun Dice(dieIndex:Int,
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        val dieValue=dieIndex+1
+        val dieValue1=dieIndex1+1
 
-        Text("$dieValue",
+        Text("$dieValue1",
+            fontSize = 32.sp)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+
+
+        Image(
+
+            painter= painterResource(id=dieArray[dieIndex2]),
+
+            contentDescription = "Dice image",
+
+            modifier = Modifier
+
+                .size(150.dp)
+
+
+
+
+
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+
+
+        Button(onClick=onRollClick)
+
+        { Text("Roll Die")}
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        val dieValue2=dieIndex2+1
+
+        Text("$dieValue2",
             fontSize = 32.sp)
 
     }
