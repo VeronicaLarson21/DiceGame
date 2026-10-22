@@ -16,15 +16,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,18 +50,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DiceScreen(modifier: Modifier=Modifier){
-    var dieIndex1 by remember { mutableIntStateOf(5) }
-    var dieIndex2 by remember { mutableIntStateOf(5) }
-    var dieIndex3 by remember { mutableIntStateOf(5) }
-    var dieIndex4 by remember { mutableIntStateOf(5) }
-    var dieIndex5 by remember { mutableIntStateOf(5) }
-    Dice(dieIndex1, dieIndex2, dieIndex3, dieIndex4, dieIndex5,
-        onRollClick={
-            dieIndex1=rollDie()
-            dieIndex2=rollDie()
-            dieIndex3=rollDie()
-            dieIndex4=rollDie()
-            dieIndex5=rollDie()
+    val check = remember { mutableStateListOf(false,false,false,false,false) }
+    val values = remember {mutableStateListOf(5,5,5,5,5)}
+    Dice(values,check,
+        onCheckChange = { index, checked -> check[index] = checked },
+        onRollClick = {
+            for (i in values.indices) {
+                if (!check[i]) {
+                    values[i] = rollDie()
+                }
+            }
         },
         modifier=modifier
     )
@@ -71,13 +74,11 @@ fun DicePreview() {
 }
 
 @Composable
-fun Dice(dieIndex1:Int,
-         dieIndex2:Int,
-         dieIndex3:Int,
-         dieIndex4:Int,
-         dieIndex5:Int,
-         onRollClick: ()->Unit,
-         modifier: Modifier= Modifier
+fun Dice(values: List<Int>,
+         check: List<Boolean>,
+         onCheckChange: (index: Int, checked: Boolean) -> Unit,
+         onRollClick: () -> Unit,
+         modifier: Modifier = Modifier
 ) {
     val dieArray = remember {
         intArrayOf(
@@ -97,7 +98,7 @@ fun Dice(dieIndex1:Int,
         //Dice Image Row 1
         Row(){
             Image(
-                painter = painterResource(id = dieArray[dieIndex1]),
+                painter = painterResource(id = dieArray[values[0]]),
                 contentDescription = "Dice image",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
@@ -105,7 +106,7 @@ fun Dice(dieIndex1:Int,
             )
             Spacer(modifier = Modifier.height(10.dp))
             Image(
-                painter = painterResource(id = dieArray[dieIndex2]),
+                painter = painterResource(id = dieArray[values[1]]),
                 contentDescription = "Dice image",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
@@ -115,22 +116,20 @@ fun Dice(dieIndex1:Int,
         //Keep Buttons
         Row(){
             Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Die") }
-            Spacer(modifier = Modifier.height(5.dp))
-            val dieValue1 = dieIndex1 + 1
-            Spacer(modifier = Modifier.width(16.dp))
-            //Button 2
-            Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Die") }
-            Spacer(modifier = Modifier.height(5.dp))
-            val dieValue2 = dieIndex2 + 1
+            Checkbox(
+                checked = check[0],
+                onCheckedChange = {onCheckChange(0,it)}
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Checkbox(
+                checked = check[1],
+                onCheckedChange = {onCheckChange(1,it)}
+            )
         }
-        //Dice Image Row 2
+            //Dice Image Row 2
         Row(){
             Image(
-                painter = painterResource(id = dieArray[dieIndex3]),
+                painter = painterResource(id = dieArray[values[2]]),
                 contentDescription = "Dice image",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
@@ -138,7 +137,7 @@ fun Dice(dieIndex1:Int,
             )
             Spacer(modifier = Modifier.height(10.dp))
             Image(
-                painter = painterResource(id = dieArray[dieIndex4]),
+                painter = painterResource(id = dieArray[values[3]]),
                 contentDescription = "Dice image",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
@@ -148,22 +147,20 @@ fun Dice(dieIndex1:Int,
         //Keep Buttons Row 2
         Row(){
             Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Die") }
-            Spacer(modifier = Modifier.height(5.dp))
-            val dieValue3 = dieIndex3 + 1
-            Spacer(modifier = Modifier.width(16.dp))
-            //Button 2
-            Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Die") }
-            Spacer(modifier = Modifier.height(5.dp))
-            val dieValue4 = dieIndex4 + 1
+            Checkbox(
+                checked = check[2],
+                onCheckedChange = {onCheckChange(2,it)}
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Checkbox(
+                checked = check[3],
+                onCheckedChange = {onCheckChange(3,it)}
+            )
         }
         //Dice Image Row 3
         Row(){
             Image(
-                painter = painterResource(id = dieArray[dieIndex5]),
+                painter = painterResource(id = dieArray[values[4]]),
                 contentDescription = "Dice image",
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
@@ -173,10 +170,18 @@ fun Dice(dieIndex1:Int,
         //Keep Buttons Row 3
         Row(){
             Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Die") }
+            Checkbox(
+                checked = check[4],
+                onCheckedChange = {onCheckChange(4,it)}
+            )
+        }
+
+        //Roll them all button
+        Row(){
             Spacer(modifier = Modifier.height(5.dp))
-            val dieValue5 = dieIndex5 + 1
+            Button(modifier=Modifier.fillMaxWidth(),onClick = onRollClick)
+            { Text("Roll Dice") }
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
