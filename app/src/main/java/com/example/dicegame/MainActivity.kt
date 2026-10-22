@@ -192,24 +192,30 @@ fun Dice(values: List<Int>,
 
 fun scoreCalc(values: List<Int>):List<Int>{
     val scores = mutableListOf(0,0,0,0,0,0,0,0,0,0,0,0,0)
-    val totalDice = scores.sum()
-    val sortedDistinct = scores.distinct().sorted()
+    val totalDice = values.sum() + 5
+    val sortedDistinct = values.distinct().sorted()
 
     //Aces through Sixes
     for (i in scores.indices.take(6)) {
-        scores[i] = values.count { it == i }
+        scores[i] = values.count { it == i } * (i+1)
     }
 
     // 3 of a kind
-    val hasThreeOfAKind = values.groupingBy { it }.eachCount().values.any { it == 3 }
+    val hasThreeOfAKind = values.groupingBy { it }.eachCount().values.any { it >= 3 }
     if(hasThreeOfAKind){
         scores[6] = totalDice
     }
 
     //4 of a Kind
-    val has4OfAKind = values.groupingBy { it }.eachCount().values.any { it == 4 }
+    val has4OfAKind = values.groupingBy { it }.eachCount().values.any { it >= 4 }
     if(has4OfAKind){
         scores[7] = totalDice
+    }
+
+    //Full House
+    val counts = values.groupingBy { it }.eachCount().values.sorted()
+    if(counts == listOf(2, 3)){
+        scores[8] = 25
     }
 
 
@@ -237,17 +243,8 @@ fun scoreCalc(values: List<Int>):List<Int>{
         scores[11] = 50
     }
 
-    //Full House
-    if(hasThreeOfAKind && !has4OfAKind && !hasYahtzee){
-        //check to see if you have a double
-    }
-
     //Chance
     scores[12] = totalDice
-
-
-
-
 
     return scores
 }
