@@ -17,8 +17,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -43,15 +46,21 @@ class MainActivity : ComponentActivity() {
 fun DiceScreen(modifier: Modifier=Modifier){
     val check = remember { mutableStateListOf(false,false,false,false,false) }
     val values = remember {mutableStateListOf(5,5,5,5,5)}
+    var rolls by remember { mutableIntStateOf(0) }
     Dice(values,check,
         onCheckChange = { index, checked -> check[index] = checked },
         onRollClick = {
-            for (i in values.indices) {
-                if (!check[i]) {
-                    values[i] = rollDie()
+            if(rolls<3){
+                ++rolls
+                for (i in values.indices) {
+                    if (!check[i]) {
+                        values[i] = rollDie()
+                    }
                 }
             }
+
         },
+        rolls,
         modifier=modifier
     )
 }
@@ -69,6 +78,7 @@ fun Dice(values: List<Int>,
          check: List<Boolean>,
          onCheckChange: (index: Int, checked: Boolean) -> Unit,
          onRollClick: () -> Unit,
+         rolls: Int,
          modifier: Modifier = Modifier
 ) {
     val dieArray = remember {
@@ -186,6 +196,10 @@ fun Dice(values: List<Int>,
         Row(){
             val test = scoreCalc(values)
             Text("$test")
+        }
+        //Stupid moron row take 3 :)
+        Row(){
+            Text("$rolls")
         }
     }
 }
