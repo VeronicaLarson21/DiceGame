@@ -4,9 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,19 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -113,9 +104,10 @@ fun Dice(values: List<Int>,
                     .size(100.dp)
             )
         }
-        //Keep Buttons
-        Row(){
-            Spacer(modifier = Modifier.height(5.dp))
+        //Keep Buttons Row 1
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text("Keep?", fontSize = 24.sp)
+            Spacer(modifier = Modifier.width(10.dp))
             Checkbox(
                 checked = check[0],
                 onCheckedChange = {onCheckChange(0,it)}
@@ -125,6 +117,8 @@ fun Dice(values: List<Int>,
                 checked = check[1],
                 onCheckedChange = {onCheckChange(1,it)}
             )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text("Keep?", fontSize = 24.sp)
         }
             //Dice Image Row 2
         Row(){
@@ -145,8 +139,9 @@ fun Dice(values: List<Int>,
             )
         }
         //Keep Buttons Row 2
-        Row(){
-            Spacer(modifier = Modifier.height(5.dp))
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text("Keep?", fontSize = 24.sp)
+            Spacer(modifier = Modifier.width(10.dp))
             Checkbox(
                 checked = check[2],
                 onCheckedChange = {onCheckChange(2,it)}
@@ -156,6 +151,9 @@ fun Dice(values: List<Int>,
                 checked = check[3],
                 onCheckedChange = {onCheckChange(3,it)}
             )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text("Keep?", fontSize = 24.sp)
+
         }
         //Dice Image Row 3
         Row(){
@@ -168,8 +166,9 @@ fun Dice(values: List<Int>,
             )
         }
         //Keep Buttons Row 3
-        Row(){
-            Spacer(modifier = Modifier.height(5.dp))
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text("Keep?", fontSize = 24.sp)
+            Spacer(modifier = Modifier.width(10.dp))
             Checkbox(
                 checked = check[4],
                 onCheckedChange = {onCheckChange(4,it)}
@@ -183,10 +182,75 @@ fun Dice(values: List<Int>,
             { Text("Roll Dice") }
             Spacer(modifier = Modifier.height(5.dp))
         }
+        //Stupid moron row take 2 :)
+        Row(){
+            val test = scoreCalc(values)
+            Text("$test")
+        }
     }
 }
 
+fun scoreCalc(values: List<Int>):List<Int>{
+    val scores = mutableListOf(0,0,0,0,0,0,0,0,0,0,0,0,0)
+    val totalDice = scores.sum()
+    val sortedDistinct = scores.distinct().sorted()
 
+    //Aces through Sixes
+    for (i in scores.indices.take(6)) {
+        scores[i] = values.count { it == i }
+    }
+
+    // 3 of a kind
+    val hasThreeOfAKind = values.groupingBy { it }.eachCount().values.any { it == 3 }
+    if(hasThreeOfAKind){
+        scores[6] = totalDice
+    }
+
+    //4 of a Kind
+    val has4OfAKind = values.groupingBy { it }.eachCount().values.any { it == 4 }
+    if(has4OfAKind){
+        scores[7] = totalDice
+    }
+
+
+    //Small Straight
+    val smallS1 = listOf(1,2,3,4)
+    val smallS2 = listOf(2,3,4,5)
+    val smallS3 = listOf(3,4,5,6)
+    if(sortedDistinct.size == 4){
+        if(sortedDistinct==smallS1||sortedDistinct==smallS2||sortedDistinct==smallS3){
+            scores[9] = 30
+        }
+    }
+    //Large Straight
+    val largeS1 = listOf(1,2,3,4,5)
+    val largeS2 = listOf(2,3,4,5,6)
+    if(sortedDistinct.size==5){
+        if(sortedDistinct==largeS1 || sortedDistinct== largeS2){
+            scores[10] = 40
+        }
+    }
+
+    //Yahtzee
+    val hasYahtzee = values.groupingBy { it }.eachCount().values.any { it == 5 }
+    if(hasYahtzee){
+        scores[11] = 50
+    }
+
+    //Full House
+    if(hasThreeOfAKind && !has4OfAKind && !hasYahtzee){
+        //check to see if you have a double
+    }
+
+    //Chance
+    scores[12] = totalDice
+
+
+
+
+
+    return scores
+}
 
 
 
