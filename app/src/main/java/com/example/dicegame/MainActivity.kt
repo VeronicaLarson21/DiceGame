@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -66,8 +67,9 @@ fun DiceScreen(modifier: Modifier=Modifier){
     val values = remember {mutableStateListOf(5,5,5,5,5)}
     var rolls by remember { mutableIntStateOf(0) }
     var scoresPotential by remember {mutableStateOf(mapOf<Category,Int>())}
-    val scoresActual = remember { mutableStateMapOf<Category, Int?>().apply {Category.entries.forEach { put(it, -1) } } }
+    val scoresActual = remember { mutableStateMapOf<Category, Int>().apply {Category.entries.forEach { put(it, -1) } } }
     var selected by remember {mutableStateOf<Category?>(null)}
+    var round by remember {mutableIntStateOf(0)}
     scoresPotential = scoreCalc(values)
 
     fun onSel(input: Category){
@@ -79,14 +81,24 @@ fun DiceScreen(modifier: Modifier=Modifier){
             if(temp != null) {
                 rolls = 0
                 //tick up round
+                ++round
                 //add score to total
-                scoresActual[temp] = scoresPotential[selected]
+                scoresActual[temp] = scoresPotential[selected] as Int
                 //if x category add to bonus tracker
                 selected = null
+                for ((index, value) in check.withIndex()) {
+                    check[index] = false
+                }
+                for ((index, value) in values.withIndex()) {
+                    values[index] = 5
+                }
             }
     }
-    Dice(values,check,scoresPotential,scoresActual,selected,
+    Dice(values,check,scoresPotential,scoresActual,selected,round,
         onCheckChange = { index, checked -> check[index] = checked },
+        onResetClick = {
+            round = 0
+        },
         onRollClick = {
             if(rolls<3){
                 ++rolls
@@ -120,9 +132,11 @@ fun DicePreview() {
 fun Dice(values: List<Int>,
          check: List<Boolean>,
          scoresPot: Map<Category,Int>,
-         scoresAct: Map<Category,Int?>,
+         scoresAct: Map<Category,Int>,
          selected: Category?,
+         round: Int,
          onCheckChange: (index: Int, checked: Boolean) -> Unit,
+         onResetClick: () -> Unit,
          onRollClick: () -> Unit,
          onSelect: (Category) -> Unit,
          onScoreClick: () -> Unit,
@@ -138,147 +152,163 @@ fun Dice(values: List<Int>,
             R.drawable.dice6
         )
     }
-    Column(
-        modifier = modifier.fillMaxSize(),
+    if(round <13) {
+        Column(
+            modifier = modifier.fillMaxSize(),
 // verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        //Dice Image Row 1
-        Row(){
-            Image(
-                painter = painterResource(id = dieArray[values[0]]),
-                contentDescription = "Dice image",
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
-                    .size(100.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Image(
-                painter = painterResource(id = dieArray[values[1]]),
-                contentDescription = "Dice image",
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
-                    .size(100.dp)
-            )
-        }
-        //Keep Buttons Row 1
-        Row(verticalAlignment = Alignment.CenterVertically){
-            Text("Keep?", fontSize = 24.sp)
-            Spacer(modifier = Modifier.width(10.dp))
-            Checkbox(
-                checked = check[0],
-                onCheckedChange = {onCheckChange(0,it)}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Checkbox(
-                checked = check[1],
-                onCheckedChange = {onCheckChange(1,it)}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Keep?", fontSize = 24.sp)
-        }
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            //Dice Image Row 1
+            Row() {
+                Image(
+                    painter = painterResource(id = dieArray[values[0]]),
+                    contentDescription = "Dice image",
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
+                        .size(100.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Image(
+                    painter = painterResource(id = dieArray[values[1]]),
+                    contentDescription = "Dice image",
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
+                        .size(100.dp)
+                )
+            }
+            //Keep Buttons Row 1
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Keep?", fontSize = 24.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Checkbox(
+                    checked = check[0],
+                    onCheckedChange = { onCheckChange(0, it) }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Checkbox(
+                    checked = check[1],
+                    onCheckedChange = { onCheckChange(1, it) }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Keep?", fontSize = 24.sp)
+            }
             //Dice Image Row 2
-        Row(){
-            Image(
-                painter = painterResource(id = dieArray[values[2]]),
-                contentDescription = "Dice image",
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
-                    .size(100.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Image(
-                painter = painterResource(id = dieArray[values[3]]),
-                contentDescription = "Dice image",
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
-                    .size(100.dp)
-            )
-        }
-        //Keep Buttons Row 2
-        Row(verticalAlignment = Alignment.CenterVertically){
-            Text("Keep?", fontSize = 24.sp)
-            Spacer(modifier = Modifier.width(10.dp))
-            Checkbox(
-                checked = check[2],
-                onCheckedChange = {onCheckChange(2,it)}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Checkbox(
-                checked = check[3],
-                onCheckedChange = {onCheckChange(3,it)}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Keep?", fontSize = 24.sp)
+            Row() {
+                Image(
+                    painter = painterResource(id = dieArray[values[2]]),
+                    contentDescription = "Dice image",
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
+                        .size(100.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Image(
+                    painter = painterResource(id = dieArray[values[3]]),
+                    contentDescription = "Dice image",
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
+                        .size(100.dp)
+                )
+            }
+            //Keep Buttons Row 2
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Keep?", fontSize = 24.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Checkbox(
+                    checked = check[2],
+                    onCheckedChange = { onCheckChange(2, it) }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Checkbox(
+                    checked = check[3],
+                    onCheckedChange = { onCheckChange(3, it) }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Keep?", fontSize = 24.sp)
 
-        }
-        //Dice Image Row 3
-        Row(){
-            Image(
-                painter = painterResource(id = dieArray[values[4]]),
-                contentDescription = "Dice image",
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
-                    .size(100.dp)
-            )
-        }
-        //Keep Buttons Row 3
-        Row(verticalAlignment = Alignment.CenterVertically){
-            Text("Keep?", fontSize = 24.sp)
-            Spacer(modifier = Modifier.width(10.dp))
-            Checkbox(
-                checked = check[4],
-                onCheckedChange = {onCheckChange(4,it)}
-            )
-        }
+            }
+            //Dice Image Row 3
+            Row() {
+                Image(
+                    painter = painterResource(id = dieArray[values[4]]),
+                    contentDescription = "Dice image",
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 4.dp)
+                        .size(100.dp)
+                )
+            }
+            //Keep Buttons Row 3
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Keep?", fontSize = 24.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Checkbox(
+                    checked = check[4],
+                    onCheckedChange = { onCheckChange(4, it) }
+                )
+            }
 
-        //Roll them all button
-        Row(){
-            Spacer(modifier = Modifier.height(5.dp))
-            Button(onClick = onRollClick)
-            { Text("Roll Dice") }
-            Button(onClick = onScoreClick)
-            { Text("Score") }
-            Spacer(modifier = Modifier.height(5.dp))
-        }
-        Row(){
-            LazyColumn{
-                items(Category.entries){ category ->
-                    val used = scoresAct[category] != -1
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
+            //Roll them all button
+            Row() {
+                Spacer(modifier = Modifier.height(5.dp))
+                Button(onClick = onRollClick)
+                { Text("Roll Dice") }
+                Button(onClick = onScoreClick)
+                { Text("Score") }
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+            Row() {
+                LazyColumn {
+                    items(Category.entries) { category ->
+                        val used = scoresAct[category] != -1
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = selected == category,
+                                    enabled = !used,
+                                    role = Role.RadioButton,
+                                    onClick = { onSelect(category) }
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
                                 selected = selected == category,
-                                enabled = !used,
-                                role = Role.RadioButton,
-                                onClick = {onSelect(category)}
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        RadioButton(
-                            selected = selected == category,
-                            onClick = null,
-                            enabled = !used
-                        )
-                        Spacer(Modifier.width((12.dp)))
-                        Text(category.name.replace('_', ' ').lowercase()
-                            .replaceFirstChar { it.uppercase() },
-                            modifier = Modifier.weight(1f))
-                        if(scoresAct[category]!=-1){
-                            Text(
-                                text = (scoresAct[category]).toString(),
-                                color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                                onClick = null,
+                                enabled = !used
                             )
-                        }else{
+                            Spacer(Modifier.width((12.dp)))
                             Text(
-                                text = (scoresPot[category]).toString(),
-                                color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                                category.name.replace('_', ' ').lowercase()
+                                    .replaceFirstChar { it.uppercase() },
+                                modifier = Modifier.weight(1f)
                             )
+                            if (scoresAct[category] != -1) {
+                                Text(
+                                    text = (scoresAct[category]).toString(),
+                                    color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                                )
+                            } else {
+                                Text(
+                                    text = (scoresPot[category]).toString(),
+                                    color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
-                    }
 
+                    }
                 }
+            }
+        }
+    }
+    else{
+        Column( modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally){
+            Row(){
+                Text(" Your Score is: ${scoresAct.values.sum()}", fontSize = 50.sp)
+            }
+            Row(){
+                Button(onClick = onResetClick) { Text("Reset and play again?", fontSize = 30.sp) }
             }
         }
     }
