@@ -4,6 +4,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
@@ -20,18 +25,24 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,9 +65,27 @@ fun DiceScreen(modifier: Modifier=Modifier){
     val check = remember { mutableStateListOf(false,false,false,false,false) }
     val values = remember {mutableStateListOf(5,5,5,5,5)}
     var rolls by remember { mutableIntStateOf(0) }
-    var scores by remember {mutableStateOf(listOf<Int>())}
-    scores = mutableListOf(0,0,0,0,0,0,0,0,0,0,0,0,0)
-    Dice(values,check,scores,
+    var scoresPotential by remember {mutableStateOf(mapOf<Category,Int>())}
+    val scoresActual = remember { mutableStateMapOf<Category, Int?>().apply {Category.entries.forEach { put(it, -1) } } }
+    var selected by remember {mutableStateOf<Category?>(null)}
+    scoresPotential = scoreCalc(values)
+
+    fun onSel(input: Category){
+        selected = input
+    }
+
+    fun onScore(){
+        val temp = selected
+            if(temp != null) {
+                rolls = 0
+                //tick up round
+                //add score to total
+                scoresActual[temp] = scoresPotential[selected]
+                //if x category add to bonus tracker
+                selected = null
+            }
+    }
+    Dice(values,check,scoresPotential,scoresActual,selected,
         onCheckChange = { index, checked -> check[index] = checked },
         onRollClick = {
             if(rolls<3){
@@ -66,13 +95,14 @@ fun DiceScreen(modifier: Modifier=Modifier){
                         values[i] = rollDie()
                     }
                 }
-                scores = scoreCalc(values)
+                scoresPotential = scoreCalc(values)
 
 
             }
 
         },
-        rolls,
+        onSelect = ::onSel,
+        onScoreClick = ::onScore,
         modifier=modifier
     )
 }
@@ -85,13 +115,17 @@ fun DicePreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dice(values: List<Int>,
          check: List<Boolean>,
-         scores: List<Int>,
+         scoresPot: Map<Category,Int>,
+         scoresAct: Map<Category,Int?>,
+         selected: Category?,
          onCheckChange: (index: Int, checked: Boolean) -> Unit,
          onRollClick: () -> Unit,
-         rolls: Int,
+         onSelect: (Category) -> Unit,
+         onScoreClick: () -> Unit,
          modifier: Modifier = Modifier
 ) {
     val dieArray = remember {
@@ -201,85 +235,93 @@ fun Dice(values: List<Int>,
         //Roll them all button
         Row(){
             Spacer(modifier = Modifier.height(5.dp))
-            Button(modifier=Modifier.fillMaxWidth(),onClick = onRollClick)
+            Button(onClick = onRollClick)
             { Text("Roll Dice") }
+            Button(onClick = onScoreClick)
+            { Text("Score") }
             Spacer(modifier = Modifier.height(5.dp))
         }
-        //Stupid moron row take 2 :)
         Row(){
-
-            Text("$scores")
-            EvolvingDropdown(scores)
-        }
-        //Stupid moron row take 3 :)
-        Row(){
-            Text("$rolls")
-        }
-
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EvolvingDropdown(scores: List<Int>){
-    val remainingOptions = remember {mutableStateListOf<String>().apply {addAll((1..13).map {"Score for this option is: ${scores[it-1]}"})}}
-    val picked = remember {mutableStateListOf<String>()}
-    var expanded by remember {mutableStateOf(false)}
-    Column(Modifier.padding(16.dp)){
-        ExposedDropdownMenuBox(expanded=expanded, onExpandedChange={expanded=it}){
-            OutlinedTextField(
-                value = "Select an option (${remainingOptions.size} left)",
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded)},
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth()
-            )
-            ExposedDropdownMenu(expanded= expanded, onDismissRequest = {expanded= false}) {
-                remainingOptions.toList().forEach { option ->
-                    DropdownMenuItem(
-                        text = {Text(option)},
-                        onClick = {
-                            remainingOptions.remove(option)
-                            picked.add(option)
-                            expanded = false
+            LazyColumn{
+                items(Category.entries){ category ->
+                    val used = scoresAct[category] != -1
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = selected == category,
+                                enabled = !used,
+                                role = Role.RadioButton,
+                                onClick = {onSelect(category)}
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        RadioButton(
+                            selected = selected == category,
+                            onClick = null,
+                            enabled = !used
+                        )
+                        Spacer(Modifier.width((12.dp)))
+                        Text(category.name.replace('_', ' ').lowercase()
+                            .replaceFirstChar { it.uppercase() },
+                            modifier = Modifier.weight(1f))
+                        if(scoresAct[category]!=-1){
+                            Text(
+                                text = (scoresAct[category]).toString(),
+                                color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                            )
+                        }else{
+                            Text(
+                                text = (scoresPot[category]).toString(),
+                                color = if (used) Color.Gray else MaterialTheme.colorScheme.primary
+                            )
                         }
-                    )
+                    }
+
                 }
             }
         }
-        picked.forEach {Text(it,Modifier.padding(top=8.dp))}
     }
+
 }
 
+enum class Category { ONES, TWOS, THREES, FOURS, FIVES, SIXES,
+    THREE_KIND, FOUR_KIND, FULL_HOUSE, SMALL_STRAIGHT,
+    LARGE_STRAIGHT, YAHTZEE, CHANCE }
+
+
+
+
+
 //Utility Functions
-fun scoreCalc(values: List<Int>):List<Int>{
-    val scores = mutableListOf(0,0,0,0,0,0,0,0,0,0,0,0,0)
+fun scoreCalc(values: List<Int>):Map<Category,Int>{
+    val scores = Category.entries.associateWith{0}.toMutableMap()
     val totalDice = values.sum() + 5
     val sortedDistinct = values.distinct().sorted()
 
     //Aces through Sixes
-    for (i in scores.indices.take(6)) {
-        scores[i] = values.count { it == i } * (i+1)
+    var count = 0
+    scores.asSequence().take(6).forEach{ (key) ->
+        scores[key] = values.count { it == count } * (count+1)
+        ++count
     }
 
     // 3 of a kind
     val hasThreeOfAKind = values.groupingBy { it }.eachCount().values.any { it >= 3 }
     if(hasThreeOfAKind){
-        scores[6] = totalDice
+        scores[Category.THREE_KIND] = totalDice
     }
 
     //4 of a Kind
     val has4OfAKind = values.groupingBy { it }.eachCount().values.any { it >= 4 }
     if(has4OfAKind){
-        scores[7] = totalDice
+        scores[Category.FOUR_KIND] = totalDice
     }
 
     //Full House
     val counts = values.groupingBy { it }.eachCount().values.sorted()
     if(counts == listOf(2, 3)){
-        scores[8] = 25
+        scores[Category.FULL_HOUSE] = 25
     }
 
 
@@ -289,7 +331,7 @@ fun scoreCalc(values: List<Int>):List<Int>{
     val smallS3 = listOf(3,4,5,6)
     if(sortedDistinct.size == 4){
         if(sortedDistinct==smallS1||sortedDistinct==smallS2||sortedDistinct==smallS3){
-            scores[9] = 30
+            scores[Category.SMALL_STRAIGHT] = 30
         }
     }
     //Large Straight
@@ -297,18 +339,18 @@ fun scoreCalc(values: List<Int>):List<Int>{
     val largeS2 = listOf(2,3,4,5,6)
     if(sortedDistinct.size==5){
         if(sortedDistinct==largeS1 || sortedDistinct== largeS2){
-            scores[10] = 40
+            scores[Category.LARGE_STRAIGHT] = 40
         }
     }
 
     //Yahtzee
     val hasYahtzee = values.groupingBy { it }.eachCount().values.any { it == 5 }
     if(hasYahtzee){
-        scores[11] = 50
+        scores[Category.YAHTZEE] = 50
     }
 
     //Chance
-    scores[12] = totalDice
+    scores[Category.CHANCE] = totalDice
 
     return scores
 }
