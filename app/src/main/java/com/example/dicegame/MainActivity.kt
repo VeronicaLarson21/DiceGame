@@ -127,6 +127,7 @@ fun DicePreview() {
     }
 }
 
+// Displays all 5 dice
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dice(values: List<Int>,
@@ -257,6 +258,7 @@ fun Dice(values: List<Int>,
                 Spacer(modifier = Modifier.height(5.dp))
             }
             Row() {
+                // Used for displaying calculations
                 LazyColumn {
                     items(Category.entries) { category ->
                         val used = scoresAct[category] != -1
@@ -300,6 +302,7 @@ fun Dice(values: List<Int>,
             }
         }
     }
+    // If you've finished the game
     else{
         Column( modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
